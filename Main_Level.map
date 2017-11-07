@@ -1,0 +1,17 @@
+[level]
+tileset = tiles.png
+map = . . . . . . . . . . . .
+	  . # # . # # . . . . . .
+	  . # . . . # . . . . . .
+	  . # . . . # . . . . . . 
+	  . # . . . # . . . . . .
+	  . # # # # # . . . . . . 
+	
+[.]
+name = ground
+tile = 0, 3
+
+[#]
+name = wall
+wall = true
+block = true
