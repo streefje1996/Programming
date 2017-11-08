@@ -2,24 +2,22 @@ import threading
 import socket
 import pickle
 import time
+import pygame
 
 class SendPacket(object):
-    def __init__(self,X,Y):
+    def __init__(self,X,Y,HP):
         self.x = X
+        self.hp = HP
         self.y = Y
         self.others = dict()
 
 class Player(object):
     def __init__(self,IP):
         self.IP = IP
-        self.x = 0
-        self.y = 0
-        self.Conn = 0
+        self.player_tank = Tank()
     def Set_Coords(self,X,Y):
-        self.x = X
-        self.y = Y
-    def Set_Conn(self,Conn):
-        self.Conn = Conn
+        self.player_tank.x = X
+        self.player_tank.y = Y
 
 class Serverconn(object):
     def __init__(self,Binidng_IP):
@@ -28,6 +26,9 @@ class Serverconn(object):
         self.Buffer = 1024
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.s.bind((self.IP, self.TCP))
+
+class Tank(object):
+    pass
 
 class Socket_Listen_Thread(threading.Thread):
     def __init__(self,serverconn):
@@ -56,6 +57,7 @@ class Socket_Listen_Thread(threading.Thread):
                     break
                 except:
                     pass
+            p.player_tank = packet
             p.Set_Coords(packet.x, packet.y)
             self.players.append(p)
 
@@ -66,8 +68,9 @@ class Socket_Listen_Thread(threading.Thread):
                     if p.IP == addr:
                         threading.Thread(target=check(p))
             else:
-                if thread_count < 3:
+                if thread_count < 4:
                     threading.Thread(target=checku())
+                    thread_count+=1
 
 class Connection_Listen_Thread(threading.Thread):
     def __init__(self,thread_ID,addr):

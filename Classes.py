@@ -17,21 +17,21 @@ class SendThread(threading.Thread):
             p = Packet(x, y)
             data = pickle.dumps(p)
             self.conn.s.sendto(data, (self.conn.IP,self.conn.TCP))
-            time.sleep(delay)
+            # time.sleep(delay)
         while 1:
+            pygame.time.Clock().tick(60)
             if pygame.key.get_pressed()[K_DOWN] != 0:
-                y = self.Player.y + 1
-                send(self.Player.x, y)
+                y = self.Player.player_tank.y + 1
+                send(self.Player.player_tank.x, y)
             if pygame.key.get_pressed()[K_UP] != 0:
-                y = self.Player.y - 1
-                send(self.Player.x, y)
+                y = self.Player.player_tank.y - 1
+                send(self.Player.player_tank.x, y)
             if pygame.key.get_pressed()[K_LEFT] != 0:
-                x = self.Player.x - 1
-                send(x, self.Player.y)
+                x = self.Player.player_tank.x - 1
+                send(x, self.Player.player_tank.y)
             if pygame.key.get_pressed()[K_RIGHT] != 0:
-                x = self.Player.x + 1
-                send(x, self.Player.y)
-
+                x = self.Player.player_tank.x + 1
+                send(x, self.Player.player_tank.y)
 
 class RecvThread(threading.Thread):
     def __init__(self,threadID,Player,serverconn):
@@ -51,13 +51,11 @@ class RecvThread(threading.Thread):
                 for i in packet.others:
                     x = packet.others[i]["x"]
                     y = packet.others[i]["y"]
-                    p = Player("enemy")
+                    p = Player(packet.others[i]["name"])
                     p.ID = i
-                    p.Set_Coords(x, y)
-                    p.Set_Color((0, 0, 255))
+                    p.Create_Tank(x,y,0,0,0,0)
                     self.others[i] = p
             except: print("Whoops")
-
 
 class Serverconn(object):
     def __init__(self,Binidng_IP,player):
@@ -65,7 +63,7 @@ class Serverconn(object):
         self.TCP = 5005
         self.Buffer = 1024
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        pack = Packet(0,0)
+        pack = player.player_tank
         data = pickle.dumps(pack)
         self.s.sendto(data, (self.IP,self.TCP))
 
@@ -90,7 +88,7 @@ class Level(object):
             self.height = len(self.map)
 
     def load_tile_table(self,filename,width,height):
-        image = pygame.image.load(filename).convert()
+        image = pygame.image.load(filename).convert_alpha()
         image_width, image_height = image.get_size()
         tile_table = []
         for tile_x in range(0, int(image_width / width)):
@@ -113,7 +111,9 @@ class Level(object):
 
     def calculate_fromtilemap(self,tile_table,number):
         width = len(tile_table)
-        if number < width:
+        if number == -1:
+            return 0
+        elif number < width:
             return (number,0)
         else:
             acount = number // width
@@ -125,27 +125,37 @@ class Level(object):
         for y in range(self.height):
             for x in range(self.width):
                 pos = self.calculate_fromtilemap(tile,self.map[y][x])
-                screen.blit((tile[pos[0]][pos[1]]),(x*32,y*32))
-
-
+                if pos != 0:
+                    screen.blit((tile[pos[0]][pos[1]]),(x*32,y*32))
 
 class Player(object):
     def __init__(self,player_name):
-        self.ID = 0
         self.name = player_name
-        self.x = 0
-        self.y = 0
-        self.color = (255, 0, 0)
+
+    def Create_Tank(self,x,y,Health,Speed,Firerate,Bullet_Damage):
+        self.player_tank = Tank(x,y,Health,Speed,Firerate,Bullet_Damage,self.name)
 
     def Set_Coords(self,x,y):
+        self.player_tank.x = x
+        self.player_tank.y = y
+
+    def Draw(self,screen,font):
+        self.player_tank.Draw(screen,font)
+        # pygame.draw.circle(screen, self.color, (self.x+10, self.y+10), 10)
+        # pos = pygame.mouse.get_pos()
+        # pygame.draw.line(screen, (0,0,0), (self.x+10,self.y+10), (pos))
+
+class Tank(object):
+    def __init__(self,x,y,Health,Speed,Firerate,Bullet_Damage,player_name):
+        self.name = player_name
         self.x = x
         self.y = y
-
-    def Set_Color(self,color):
-        self.color = color
-
-
-    def Draw(self,screen):
-        pygame.draw.circle(screen, self.color, (self.x+10, self.y+10), 10)
-        pos = pygame.mouse.get_pos()
-        pygame.draw.line(screen, (0,0,0), (self.x+10,self.y+10), (pos))
+        self.hp = Health
+        self.spd = Speed
+        self.fr = Firerate
+        self.bd = Bullet_Damage
+    def Draw(self,screen,font):
+        text = font.render(self.name, False, (0, 0, 0))
+        spacing = text.get_rect().width / 2
+        screen.blit(text,(self.x+10-spacing,self.y-20))
+        pygame.draw.circle(screen, (0,0,0), (self.x + 10, self.y + 10), 10)
