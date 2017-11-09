@@ -13,25 +13,27 @@ class SendThread(threading.Thread):
         self.conn = serverconn
     def run(self):
         delay = 0.01
-        def send(x,y):
-            p = Packet(x, y)
-            data = pickle.dumps(p)
-            self.conn.s.sendto(data, (self.conn.IP,self.conn.TCP))
+        def send(value):
+            if value == "FIRE":
+                data = Packet(value)
+                mousepos = pygame.mouse.get_pos()
+                data.Set_Coords(mousepos[0],mousepos[1])
+            else:
+                data = Packet(value)
+            self.conn.s.sendto(pickle.dumps(data), (self.conn.IP,self.conn.TCP))
             # time.sleep(delay)
         while 1:
             pygame.time.Clock().tick(60)
             if pygame.key.get_pressed()[K_DOWN] != 0:
-                y = self.Player.player_tank.y + 1
-                send(self.Player.player_tank.x, y)
+                send("DOWN")
             if pygame.key.get_pressed()[K_UP] != 0:
-                y = self.Player.player_tank.y - 1
-                send(self.Player.player_tank.x, y)
+                send("UP")
             if pygame.key.get_pressed()[K_LEFT] != 0:
-                x = self.Player.player_tank.x - 1
-                send(x, self.Player.player_tank.y)
+                send("LEFT")
             if pygame.key.get_pressed()[K_RIGHT] != 0:
-                x = self.Player.player_tank.x + 1
-                send(x, self.Player.player_tank.y)
+                send("RIGHT")
+            if pygame.key.get_pressed()[K_SPACE] != 0:
+                send("FIRE")
 
 class RecvThread(threading.Thread):
     def __init__(self,threadID,Player,serverconn):
@@ -68,9 +70,11 @@ class Serverconn(object):
         self.s.sendto(data, (self.IP,self.TCP))
 
 class Packet(object):
-    def __init__(self,x,y):
-        self.x=x
-        self.y=y
+    def __init__(self,text):
+        self.text = text
+    def Set_Coords(self,x,y):
+        self.x = x
+        self.y = y
 
 class Level(object):
     def load_file(self, filename="Main_Level.map"):
