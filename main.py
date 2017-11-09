@@ -11,12 +11,15 @@ pygame.init()
 pygame.font.init()
 myfont = pygame.font.SysFont('Comic Sans MS', 15)
 
-mainplayer = Classes.Player("Messorago")
+mainplayer = Classes.Player("Streefje")
 mainplayer.Create_Tank(0,0,1,2,3,4)
+
+icon = pygame.image.load("res/pp.png")
 
 #create screen and set Title
 DISPLAYSURF = pygame.display.set_mode((800,800))
 pygame.display.set_caption("Tank Battle")
+pygame.display.set_icon(icon)
 
 level = Classes.Level()
 level_overlay = Classes.Level()
