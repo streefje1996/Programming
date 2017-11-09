@@ -41,8 +41,9 @@ class Input:
 
     def draw(self, surface):
         """ Draw the text input to a surface """
-        text = self.font.render(self.prompt+self.value, 1, self.color)
-        surface.blit(text, (self.x, self.y))
+        self.text = self.font.render(self.prompt+self.value, 1, self.color)
+        spacing = self.text.get_rect().width / 2
+        surface.blit(self.text, (self.x-spacing, self.y))
 
     def update(self, events):
         """ Update the input based on passed events """

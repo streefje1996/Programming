@@ -2,7 +2,6 @@ import threading
 import socket
 import pickle
 import time
-import pygame
 
 class SendPacket(object):
     def __init__(self,X,Y,HP):

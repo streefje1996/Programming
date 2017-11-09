@@ -3,6 +3,7 @@ import threading, time
 import pygame, sys
 import csv
 import socket, pickle
+import eztext
 from pygame.locals import *
 
 class SendThread(threading.Thread):
@@ -17,7 +18,7 @@ class SendThread(threading.Thread):
             p = Packet(x, y)
             data = pickle.dumps(p)
             self.conn.s.sendto(data, (self.conn.IP,self.conn.TCP))
-            # time.sleep(delay)
+            #time.sleep(delay)
         while 1:
             pygame.time.Clock().tick(60)
             if pygame.key.get_pressed()[K_DOWN] != 0:
@@ -159,3 +160,63 @@ class Tank(object):
         spacing = text.get_rect().width / 2
         screen.blit(text,(self.x+10-spacing,self.y-20))
         pygame.draw.circle(screen, (0,0,0), (self.x + 10, self.y + 10), 10)
+
+class Intro(object):
+    def ipchooser(self):
+        DISPLAYSURF = pygame.display.set_mode((800, 800))
+        #Eerst het kopje IP adress:
+        myfont = pygame.font.SysFont('MS Sans Serif', 100)
+        starttext = myfont.render('IP adress', False, (255,255,255))
+        #Dan het invullen van het ip adrea
+        ip = eztext.Input(x=400, y= 350, color=(255, 255, 255), font=pygame.font.Font(None, 100))
+        #De witte lijn onder het ip adres
+        line = pygame.Rect((150, 410, 500, 10))
+        #Submit knopje
+        startbutton = pygame.Rect((300, 600, 200, 80))
+        while True:
+            DISPLAYSURF.fill((0, 0, 0))
+
+            events = pygame.event.get()
+            for event in events:
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if startbutton.collidepoint(mouse_pos):
+                        print('button in ip chooser was pressed at {0}'.format(mouse_pos))
+                        print(serverip)
+                        pygame.mixer.music.stop()
+                        return(serverip)
+            ip.update(events)
+            ip.draw(DISPLAYSURF)
+            pygame.draw.rect(DISPLAYSURF, [255,255,255], line)
+            DISPLAYSURF.blit(starttext, (252, 100))
+            pygame.draw.rect(DISPLAYSURF, [0, 255, 0], startbutton)  # draw objects down here
+            pygame.display.update()
+            serverip = ip.value
+
+    def __new__(cls):
+        pygame.mixer.music.load("res/Menu.mp3")
+        pygame.mixer.music.play(loops=-1, start=0.0)
+        DISPLAYSURF = pygame.display.set_mode((800, 800))
+        startbutton = pygame.Rect((325, 370, 150, 60))
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if startbutton.collidepoint(mouse_pos):
+                        return (cls.ipchooser(cls))
+            startimage = pygame.image.load("res/Start.png")
+            DISPLAYSURF.blit(startimage, (325, 360))
+            pygame.display.update()
+
+class Music(object):
+    pygame.init()
+    def __init__(self):
+        pygame.mixer.music.load("res/Backgroundmusic.mp3")
+        pygame.mixer.music.play(-1, 0.0)
