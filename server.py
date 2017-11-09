@@ -33,6 +33,7 @@ while 1:
                             pID.player_tank.hp -= player.player_tank.bd
                             if pID.player_tank.hp <= 0:
                                 pID.dead = True
+                                pID.player_tank.name = "Dead Tank Boi"
                             player.player_tank.bullets.remove(bullet)
                 packet.others[str(pID.IP[1])]={"x":pID.player_tank.x,
                                                "y":pID.player_tank.y,
