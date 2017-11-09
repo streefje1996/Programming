@@ -153,8 +153,8 @@ class Player(object):
         self.player_tank.x = x
         self.player_tank.y = y
 
-    def Draw(self,screen,font,bot,top):
-        self.player_tank.Draw(screen,font,bot,top)
+    def Draw(self,screen,font,bot,top,bullettimage):
+        self.player_tank.Draw(screen,font,bot,top,bullettimage)
         # pygame.draw.circle(screen, self.color, (self.x+10, self.y+10), 10)
         # pos = pygame.mouse.get_pos()
         # pygame.draw.line(screen, (0,0,0), (self.x+10,self.y+10), (pos))
@@ -169,7 +169,7 @@ class Tank(object):
         self.fr = Firerate
         self.bd = Bullet_Damage
         self.bullets = []
-    def Draw(self,screen,font,bot,top):
+    def Draw(self,screen,font,bot,top,bullettimage):
         def rot_center(image, angle):
             """rotate an image while keeping its center and size"""
             orig_rect = image.get_rect()
@@ -194,7 +194,7 @@ class Tank(object):
         if not self.bullets: pass
         else:
             for bullet in self.bullets:
-                bullet.Draw(screen)
+                bullet.Draw(screen,bullettimage)
 
 class Bullet(object):
     def __init__(self,x,y,tar_x,tar_y,speed):

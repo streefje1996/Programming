@@ -72,10 +72,9 @@ class Bullet(object):
             self.y += _x
         else:
             del self
-    def Draw(self,screen):
+    def Draw(self,screen,bullettimage):
         self.bulletspr = pygame.Rect((self.x+5, self.y+5,10,10))
-        bullettimage = pygame.image.load("res/Bullet.png")
-        screen.blit(bullettimage, (self.x+5, self.y+5))
+        screen.blit(bullettimage, (self.x+10, self.y+10))
 
 class Socket_Listen_Thread(threading.Thread):
     def __init__(self,serverconn):
