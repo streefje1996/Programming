@@ -27,13 +27,13 @@ class SendThread(threading.Thread):
         count = 0
         while 1:
             pygame.time.Clock().tick(60)
-            if pygame.key.get_pressed()[K_DOWN] != 0:
+            if pygame.key.get_pressed()[K_s] != 0:
                 send("DOWN")
-            if pygame.key.get_pressed()[K_UP] != 0:
+            if pygame.key.get_pressed()[K_w] != 0:
                 send("UP")
-            if pygame.key.get_pressed()[K_LEFT] != 0:
+            if pygame.key.get_pressed()[K_a] != 0:
                 send("LEFT")
-            if pygame.key.get_pressed()[K_RIGHT] != 0:
+            if pygame.key.get_pressed()[K_d] != 0:
                 send("RIGHT")
             if pygame.key.get_pressed()[K_SPACE] != 0:
                 if count == 50/self.Player.player_tank.fr:
@@ -42,8 +42,6 @@ class SendThread(threading.Thread):
             count += 1
             if count >= 50/self.Player.player_tank.fr:
                 count=50/self.Player.player_tank.fr
-
-
 
 class RecvThread(threading.Thread):
     def __init__(self,threadID,Player,serverconn):
@@ -155,8 +153,8 @@ class Player(object):
         self.player_tank.x = x
         self.player_tank.y = y
 
-    def Draw(self,screen,font,bot,top):
-        self.player_tank.Draw(screen,font,bot,top)
+    def Draw(self,screen,font,bot,top,bullettimage):
+        self.player_tank.Draw(screen,font,bot,top,bullettimage)
         # pygame.draw.circle(screen, self.color, (self.x+10, self.y+10), 10)
         # pos = pygame.mouse.get_pos()
         # pygame.draw.line(screen, (0,0,0), (self.x+10,self.y+10), (pos))
@@ -171,7 +169,7 @@ class Tank(object):
         self.fr = Firerate
         self.bd = Bullet_Damage
         self.bullets = []
-    def Draw(self,screen,font,bot,top):
+    def Draw(self,screen,font,bot,top,bullettimage):
         def rot_center(image, angle):
             """rotate an image while keeping its center and size"""
             orig_rect = image.get_rect()
@@ -196,7 +194,7 @@ class Tank(object):
         if not self.bullets: pass
         else:
             for bullet in self.bullets:
-                bullet.Draw(screen)
+                bullet.Draw(screen,bullettimage)
 
 class Bullet(object):
     def __init__(self,x,y,tar_x,tar_y,speed):
@@ -220,7 +218,8 @@ class Intro(object):
         #De witte lijn onder het ip adres
         line = pygame.Rect((150, 410, 500, 10))
         #Submit knopje
-        startbutton = pygame.Rect((300, 600, 200, 80))
+        submitbutton = pygame.Rect((325, 600, 150, 60))
+        submitimage = pygame.image.load("res/Submit.png")
         while True:
             DISPLAYSURF.fill((0, 0, 0))
 
@@ -231,22 +230,27 @@ class Intro(object):
                     sys.exit
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
-                    if startbutton.collidepoint(mouse_pos):
+                    if submitbutton.collidepoint(mouse_pos):
                         if serverip == "":
                             return("83.128.201.15")
                         else:
                             print('button in ip chooser was pressed at {0}'.format(mouse_pos))
                             print(serverip)
+
                             return(serverip)
             ip.update(events)
             ip.draw(DISPLAYSURF)
             pygame.draw.rect(DISPLAYSURF, [255,255,255], line)
             DISPLAYSURF.blit(starttext, (252, 100))
-            pygame.draw.rect(DISPLAYSURF, [0, 255, 0], startbutton)  # draw objects down here
+            pygame.draw.rect(DISPLAYSURF, [0, 0, 0], submitbutton)
+            DISPLAYSURF.blit(submitimage, (325, 600))
+            # draw objects down here
             pygame.display.update()
             serverip = ip.value
 
     def __new__(cls):
+        pygame.mixer.music.load("res/Menu.mp3")
+        pygame.mixer.music.play(loops=-1, start=0.0)
         DISPLAYSURF = pygame.display.set_mode((800, 800))
         startbutton = pygame.Rect((325, 370, 150, 60))
         while True:
@@ -373,6 +377,7 @@ class Creation(object):
                             poolnum += 1
                     elif submitbutton.collidepoint(mouse_pos) and poolnum == 0:
                         print("Informatie {} \nHealth: {}\nSpeed: {}\nFirerate: {} \nBullet Damage: {}".format(nameinput.value, healthnum,speednum,fireratenum,bulletdamagenum))
+                        pygame.mixer.music.stop()
                         return(0,0,healthnum,speednum,fireratenum,bulletdamagenum,nameinput.value)
                     elif randombutton.collidepoint(mouse_pos):
                         stats = (cls.random(cls))

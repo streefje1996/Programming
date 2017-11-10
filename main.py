@@ -10,7 +10,6 @@ myfont = pygame.font.SysFont('Comic Sans MS', 15)
 
 IP = Classes.Intro()
 
-
 mainplayer = Classes.Player()
 mainplayer.Create_Tank(Classes.Creation())
 
@@ -36,26 +35,28 @@ Recving_Thread.start()
 
 bot=pygame.image.load("res/tank/bot.png").convert_alpha()
 top=pygame.image.load("res/tank/top.png").convert_alpha()
+bullettimage = pygame.image.load("res/Bullet.png").convert_alpha()
+
+pygame.mixer.music.load("res/Backgroundmusic.mp3")
+pygame.mixer.music.play(loops=-1, start=0.0)
 
 while True:
     pygame.time.Clock().tick(60)
     #check for exit
     for event in pygame.event.get():
         if event.type == QUIT:
+            pygame.mixer.music.stop()
             pygame.quit()
             sys.exit()
 
     level.Draw_Level(tiletable,DISPLAYSURF)
     level_overlay.Draw_Level(tiletable,DISPLAYSURF)
-    mainplayer.Draw(DISPLAYSURF,myfont,bot,top)
+    mainplayer.Draw(DISPLAYSURF,myfont,bot,top,bullettimage)
     try:
         for player in Recving_Thread.others:
-            Recving_Thread.others[player].Draw(DISPLAYSURF,myfont,bot,top)
+            Recving_Thread.others[player].Draw(DISPLAYSURF,myfont,bot,top,bullettimage)
     except:
         pass
-
-
-
 
     #Update screen
     pygame.display.update()
